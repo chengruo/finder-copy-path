@@ -3,7 +3,8 @@
 Adds **Copy Absolute Path** to Finder's right-click **Quick Actions** menu. It
 copies the absolute path of the selected file or folder inside safe double
 quotes, ready to paste after commands such as `ls`, `cd`, `cat`, or `open`.
-When multiple items are selected, their paths are copied one per line.
+When multiple items are selected, their quoted paths are separated by spaces
+on one line so they can be used as arguments to the same command.
 
 ## Install
 

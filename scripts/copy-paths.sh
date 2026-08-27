@@ -11,7 +11,7 @@ for selected_path in "$@"; do
   escaped_path="${escaped_path//\"/\\\"}"
   escaped_path="${escaped_path//\$/\\\$}"
   escaped_path="${escaped_path//\`/\\\`}"
-  [[ -z "$clipboard_text" ]] || clipboard_text+=$'\n'
+  [[ -z "$clipboard_text" ]] || clipboard_text+=' '
   clipboard_text+='"'"$escaped_path"'"'
 done
 

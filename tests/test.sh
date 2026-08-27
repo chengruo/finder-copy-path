@@ -43,7 +43,7 @@ COPY_PATH_PBCOPY="${project_dir}/tests/capture-stdin.sh" \
   '/tmp/目录/文件.txt' '/tmp/-leading-dash'
 
 actual=$(/bin/cat "$capture_file")
-expected=$'"/tmp/a file.txt"\n"/tmp/it\'s \\"\\$HOME\\" \\`file\\`.txt"\n"/tmp/目录/文件.txt"\n"/tmp/-leading-dash"'
+expected=$'"/tmp/a file.txt" "/tmp/it\'s \\"\\$HOME\\" \\`file\\`.txt" "/tmp/目录/文件.txt" "/tmp/-leading-dash"'
 [[ "$actual" == "$expected" ]] || {
   print -u2 "Clipboard output did not match."
   exit 1
