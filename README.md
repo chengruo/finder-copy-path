@@ -69,5 +69,5 @@ make uninstall
 make test
 ```
 
-The test validates the workflow bundle and exercises the clipboard script with
-paths containing spaces and Unicode characters.
+The test validates the workflow bundle, its native Copy to Clipboard action,
+and path formatting with spaces, shell-sensitive characters, and Unicode.

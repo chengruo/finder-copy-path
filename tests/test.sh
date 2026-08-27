@@ -3,7 +3,7 @@ set -euo pipefail
 
 script_dir="${0:A:h}"
 project_dir="${script_dir:h}"
-workflow="${project_dir}/Copy Absolute Path.workflow/Contents/Resources/document.wflow"
+workflow="${project_dir}/Copy Absolute Path.workflow/Contents/document.wflow"
 
 /usr/bin/plutil -lint "$workflow"
 /usr/bin/plutil -lint "${project_dir}/Copy Absolute Path.workflow/Contents/Info.plist"
@@ -23,6 +23,20 @@ workflow_type=$(/usr/libexec/PlistBuddy -c \
   exit 1
 }
 
+action_input_type=$(/usr/libexec/PlistBuddy -c \
+  'Print :actions:0:action:AMAccepts:Types:0' "$workflow")
+[[ "$action_input_type" == 'com.apple.cocoa.string' ]] || {
+  print -u2 "Run Shell Script must receive strings for multi-selection input."
+  exit 1
+}
+
+clipboard_action=$(/usr/libexec/PlistBuddy -c \
+  'Print :actions:1:action:BundleIdentifier' "$workflow")
+[[ "$clipboard_action" == 'com.apple.Automator.CopyToClipboard' ]] || {
+  print -u2 "The workflow must use Automator's native clipboard action."
+  exit 1
+}
+
 workflow_script=$(/usr/libexec/PlistBuddy -c \
   'Print :actions:0:action:ActionParameters:COMMAND_STRING' "$workflow")
 expected_script=$(/bin/cat "${project_dir}/scripts/copy-paths.sh")
@@ -32,17 +46,9 @@ expected_script=$(/bin/cat "${project_dir}/scripts/copy-paths.sh")
   exit 1
 }
 
-capture_file=$(/usr/bin/mktemp "${TMPDIR:-/tmp}/copy-path-test.XXXXXX")
-cleanup() { /bin/rm -f "$capture_file"; }
-trap cleanup EXIT
-
-COPY_PATH_TEST_OUTPUT="$capture_file" \
-COPY_PATH_PBCOPY="${project_dir}/tests/capture-stdin.sh" \
-  "${project_dir}/scripts/copy-paths.sh" \
+actual=$("${project_dir}/scripts/copy-paths.sh" \
   '/tmp/a file.txt' '/tmp/it'\''s "$HOME" `file`.txt' \
-  '/tmp/目录/文件.txt' '/tmp/-leading-dash'
-
-actual=$(/bin/cat "$capture_file")
+  '/tmp/目录/文件.txt' '/tmp/-leading-dash')
 expected=$'"/tmp/a file.txt" "/tmp/it\'s \\"\\$HOME\\" \\`file\\`.txt" "/tmp/目录/文件.txt" "/tmp/-leading-dash"'
 [[ "$actual" == "$expected" ]] || {
   print -u2 "Clipboard output did not match."
